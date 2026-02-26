@@ -181,10 +181,8 @@ class WordForgeRenderer {
     const r = Math.min(10, w * 0.12);
     const t = Date.now() / 1000;
 
-    // ── Theme detection: light mode = no dark-mode class ──
-    const isDark = document.body.classList.contains('dark-mode') ||
-      (!document.body.classList.contains('light-mode-forced') &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches);
+    // ── Theme detection: only trust the explicit body class ──
+    const isDark = document.body.classList.contains('dark-mode');
 
     // Palette — entirely different for light vs dark so letters are always visible
     const pal = isDark ? {
