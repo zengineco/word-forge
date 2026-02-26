@@ -27,8 +27,8 @@
 
   /* Text */
   --text:         #1A2B3C;
-  --text2:        #4A6070;
-  --text3:        #8A9AAA;
+  --text2:        #B0C4DE; /* Light Steel Blue - much clearer */
+  --text3:        #7A8C99; /* Higher contrast muted gray */
   --text-inv:     #FFFFFF;
 
   /* Chrome effect */
