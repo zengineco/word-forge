@@ -82,18 +82,20 @@ body.dark-mode {
   --bg:           #0A0F1A;
   --bg2:          #0D1520;
   --surface:      #111E2E;
-  --surface2:     #162030;
-  --border:       rgba(255,255,255,0.06);
-  --border2:      rgba(255,255,255,0.12);
-  --text:         #E8F4FF;
-  --text2:        #8AAABB;
-  --text3:        #506070;
-  --cell-bg:      linear-gradient(145deg, #1E2D3D 0%, #162438 50%, #0F1C2E 100%);
-  --cell-active:  linear-gradient(145deg, #0A2A3D 0%, #0D3A52 50%, #0A2A3D 100%);
-  --cell-border:  rgba(100,150,200,0.2);
-  --cell-shadow:  0 4px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.07);
+  --surface2:     #162538; /* Slightly lighter to separate from bg */
+  --border:       rgba(255,255,255,0.1);
+  --border2:      rgba(255,255,255,0.18);
+  
+  /* Text Refinements */
+  --text:         #F0F8FF; /* Alice Blue - crisp white-blue */
+  --text2:        #A5C0D0; /* Balanced mid-tone */
+  --text3:        #6B8595; /* Minimum legible contrast */
+  
+  /* Cell States */
+  --cell-bg:      linear-gradient(145deg, #243447 0%, #162438 50%, #0D1525 100%);
+  --cell-active:  linear-gradient(145deg, #0D3A52 0%, #145A7A 50%, #0D3A52 100%);
+  --cell-border:  rgba(0, 212, 255, 0.2); /* Use a hint of cyan in the border */
 }
-
 /* ── Reset & Base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { height: 100%; font-size: 16px; }
