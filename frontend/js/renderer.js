@@ -181,31 +181,46 @@ class WordForgeRenderer {
     const r = Math.min(10, w * 0.12);
     const t = Date.now() / 1000;
 
+    // ── Theme detection: light mode = no dark-mode class ──
+    const isDark = document.body.classList.contains('dark-mode') ||
+      (!document.body.classList.contains('light-mode-forced') &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    // Palette — entirely different for light vs dark so letters are always visible
+    const pal = isDark ? {
+      cellBase:    ['#1e2d3d', '#162435', '#0e1a28'],
+      cellHover:   ['#1a3a4d', '#0d2535'],
+      cellActive:  ['#0a2a3d', '#0d3a52', '#0a2a3d'],
+      letterNorm:  '#e8f8ff',   // bright on dark bg
+      letterHover: '#c8f0ff',
+      letterActive:'#7fffff',
+      border:       'rgba(100,150,200,0.2)',
+      bevelAlpha:   0.12,
+      specAlpha:    0.18,
+    } : {
+      cellBase:    ['#f4f8fc', '#eaf0f7', '#dde6f0'],
+      cellHover:   ['#daeffe', '#c8e8fc'],
+      cellActive:  ['#b8e0ff', '#98ccf4', '#b8e0ff'],
+      letterNorm:  '#1a2b3c',   // dark on light bg
+      letterHover: '#004477',
+      letterActive:'#003366',
+      border:       'rgba(100,140,180,0.35)',
+      bevelAlpha:   0.55,
+      specAlpha:    0.45,
+    };
+
     ctx.save();
 
     // ── Shadow / depth ──
     ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = inPath ? 0 : 4;
-    ctx.shadowBlur = inPath ? 20 : 8;
-    ctx.shadowColor = inPath ? 'rgba(0,212,255,0.8)' : 'rgba(0,0,0,0.4)';
+    ctx.shadowOffsetY = inPath ? 0 : 3;
+    ctx.shadowBlur = inPath ? 20 : (isDark ? 8 : 6);
+    ctx.shadowColor = inPath ? 'rgba(0,212,255,0.8)' : (isDark ? 'rgba(0,0,0,0.4)' : 'rgba(0,80,160,0.18)');
 
     // ── Base fill ──
-    let bgGrad;
-    if (inPath) {
-      bgGrad = ctx.createLinearGradient(x, y, x + w, y + h);
-      bgGrad.addColorStop(0, '#0a2a3d');
-      bgGrad.addColorStop(0.5, '#0d3a52');
-      bgGrad.addColorStop(1, '#0a2a3d');
-    } else if (isHovered) {
-      bgGrad = ctx.createLinearGradient(x, y, x + w, y + h);
-      bgGrad.addColorStop(0, '#1a3a4d');
-      bgGrad.addColorStop(1, '#0d2535');
-    } else {
-      bgGrad = ctx.createLinearGradient(x, y, x + w, y + h);
-      bgGrad.addColorStop(0, '#1e2d3d');
-      bgGrad.addColorStop(0.4, '#162435');
-      bgGrad.addColorStop(1, '#0e1a28');
-    }
+    const bgGrad = ctx.createLinearGradient(x, y, x + w, y + h);
+    const cols = inPath ? pal.cellActive : isHovered ? pal.cellHover : pal.cellBase;
+    cols.forEach((c, i) => bgGrad.addColorStop(i / (cols.length - 1), c));
 
     ctx.fillStyle = bgGrad;
     ctx.beginPath();
@@ -217,7 +232,7 @@ class WordForgeRenderer {
 
     // ── Chrome bevel top highlight ──
     const bevelGrad = ctx.createLinearGradient(x, y, x, y + h * 0.35);
-    bevelGrad.addColorStop(0, inPath ? 'rgba(0,212,255,0.25)' : 'rgba(255,255,255,0.12)');
+    bevelGrad.addColorStop(0, inPath ? `rgba(0,212,255,0.25)` : `rgba(255,255,255,${pal.bevelAlpha})`);
     bevelGrad.addColorStop(1, 'rgba(255,255,255,0)');
     ctx.fillStyle = bevelGrad;
     ctx.beginPath();
@@ -232,10 +247,10 @@ class WordForgeRenderer {
       ctx.shadowColor = '#00D4FF';
       ctx.shadowBlur = 15 * pulse;
     } else if (isHovered) {
-      ctx.strokeStyle = 'rgba(0,212,255,0.5)';
+      ctx.strokeStyle = 'rgba(0,180,255,0.6)';
       ctx.lineWidth = 1.5;
     } else {
-      ctx.strokeStyle = 'rgba(100,150,200,0.2)';
+      ctx.strokeStyle = pal.border;
       ctx.lineWidth = 1;
     }
     ctx.beginPath();
@@ -246,7 +261,7 @@ class WordForgeRenderer {
     // ── Specular highlight dot (top-left) ──
     if (!inPath) {
       const specGrad = ctx.createRadialGradient(x + w * 0.28, y + h * 0.22, 0, x + w * 0.28, y + h * 0.22, w * 0.22);
-      specGrad.addColorStop(0, 'rgba(255,255,255,0.18)');
+      specGrad.addColorStop(0, `rgba(255,255,255,${pal.specAlpha})`);
       specGrad.addColorStop(1, 'rgba(255,255,255,0)');
       ctx.fillStyle = specGrad;
       ctx.beginPath();
@@ -254,7 +269,7 @@ class WordForgeRenderer {
       ctx.fill();
     }
 
-    // ── Letter ──
+    // ── Letter — always high-contrast against its background ──
     const fontSize = Math.floor(w * 0.44);
     ctx.font = `700 ${fontSize}px 'Orbitron', 'Rajdhani', monospace`;
     ctx.textAlign = 'center';
@@ -262,15 +277,15 @@ class WordForgeRenderer {
 
     if (inPath) {
       ctx.shadowColor = '#00D4FF';
-      ctx.shadowBlur = 18;
-      ctx.fillStyle = '#7fffff';
+      ctx.shadowBlur = isDark ? 18 : 10;
+      ctx.fillStyle = isDark ? '#7fffff' : pal.letterActive;
     } else if (isHovered) {
       ctx.shadowColor = '#00D4FF';
-      ctx.shadowBlur = 8;
-      ctx.fillStyle = '#c8f0ff';
+      ctx.shadowBlur = isDark ? 8 : 4;
+      ctx.fillStyle = isDark ? pal.letterHover : pal.letterHover;
     } else {
       ctx.shadowBlur = 0;
-      ctx.fillStyle = '#d0e8f8';
+      ctx.fillStyle = pal.letterNorm;
     }
 
     ctx.fillText(letter, x + w / 2, y + h / 2 + fontSize * 0.05);
