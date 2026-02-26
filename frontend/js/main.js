@@ -524,8 +524,9 @@ function addRipple(btn) {
 // ── Theme toggle ──
 function initTheme() {
   // Check saved preference
+  // Only go dark if the user has explicitly chosen it — never auto-apply from OS
   const saved = localStorage.getItem('wf_theme');
-  if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+  if (saved === 'dark') {
     document.body.classList.add('dark-mode');
     UIState.darkMode = true;
     $('btn-theme').textContent = '☀️';
